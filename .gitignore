@@ -1,2 +1,5 @@
 .idea
 data
+*.o
+*.mod
+test

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+./scripts/generate_gridded_emissions.py
+./scripts/generate_temporal_profile.py
+./scripts/generate_vertical_profile.py
+

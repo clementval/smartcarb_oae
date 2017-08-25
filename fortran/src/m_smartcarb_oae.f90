@@ -20,6 +20,9 @@ MODULE m_smartcarb_oae
     factor_area,             &
     factor_point
 
+  ! Tenporal profile
+  CHARACTER(LEN=20), DIMENSION(:), ALLOCATABLE :: tracercat
+
 CONTAINS
 
   SUBROUTINE read_vertical_profile()
@@ -46,7 +49,12 @@ CONTAINS
     END IF
   END SUBROUTINE ncdf_call_and_check_status
 
-  SUBROUTINE read_temporal_profile()
+  ! Read all the temporal profile for the Nx different tracers
+  SUBROUTINE read_temporal_profile(ntracer)
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: ntracer ! Number of tracers for temporal profile
+
+    ALLOCATE(tracercat(ntracer))
 
   END SUBROUTINE read_temporal_profile
 

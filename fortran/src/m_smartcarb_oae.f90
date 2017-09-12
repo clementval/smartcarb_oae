@@ -51,7 +51,7 @@ MODULE m_smartcarb_oae
 CONTAINS
 
   ! Allocate the data fields necessary for the vertical profile
-  SUBROUTINE init_vertical_profile_data_fields(nlevel)
+  SUBROUTINE init_vertical_profile_fields(nlevel)
     IMPLICIT NONE
     INTEGER, INTENT(IN) :: nlevel ! Number of level in the vertical profile
 
@@ -59,7 +59,7 @@ CONTAINS
     ALLOCATE(layer_top(nlevel))
     ALLOCATE(factor_area(nlevel))
     ALLOCATE(factor_point(nlevel))
-  END SUBROUTINE init_vertical_profile_data_fields
+  END SUBROUTINE init_vertical_profile_fields
 
   ! Read the vertical profile from NetCDF file and store them into their
   ! corresponding arrays.
@@ -106,17 +106,14 @@ CONTAINS
     ALLOCATE(tp_countryid(ncountry))
   END SUBROUTINE init_temporal_profile_fields
 
-  SUBROUTINE read_temporal_profile(ntracer)
+  SUBROUTINE read_temporal_profile_from_file()
     IMPLICIT NONE
-    INTEGER, INTENT(IN) :: ntracer ! Number of tracers for temporal profile
 
-    ALLOCATE(tracercat(ntracer))
+  END SUBROUTINE read_temporal_profile_from_file
 
-  END SUBROUTINE read_temporal_profile
+
 
   SUBROUTINE read_gridded_emissions()
-
   END SUBROUTINE read_gridded_emissions
-
 
 END MODULE m_smartcarb_oae

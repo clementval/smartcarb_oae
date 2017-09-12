@@ -12,15 +12,38 @@ MODULE m_smartcarb_oae
   ! May be change to NAMELIST parameter if needed by the implementation
   INTEGER, PARAMETER :: vertical_profile_nlevel = 16
 
+  INTEGER, PARAMETER :: tp_param_hourofday = 24
+  INTEGER, PARAMETER :: tp_param_dayofweek = 7
+  INTEGER, PARAMETER :: tp_param_monthofyear = 12
+  INTEGER, PARAMETER :: tp_param_hour = 8784
 
-  character (len = *), parameter :: vertical_profile_nc = "../data/vertical_profile.nc"
+  CHARACTER (len = *), PARAMETER :: vertical_profile_nc = "../data/vertical_profile.nc"
+  CHARACTER (len = *), PARAMETER :: temporal_profile_nc = "../data/temporal_profile.nc"
 
-  ! Vertical profile values
+  ! Vertical profile array
   REAL, DIMENSION(:), ALLOCATABLE :: &
     layer_bot,                       &
     layer_top,                       &
     factor_area,                     &
     factor_point
+
+
+  ! Tempororal profile arrays
+  CHARACTER(LEN=20), DIMENSION(:), ALLOCATABLE :: &
+    tp_tracercat
+
+  REAL, DIMENSION(:,:,:), ALLOCATABLE :: &
+    tp_dayofweek,                        &
+    tp_monthofyear
+
+  REAL, DIMENSION(:,:), ALLOCATABLE :: &
+    tp_hourofday,                      &
+    tp_hour
+
+  INTEGER, DIMENSION(:), ALLOCATABLE :: &
+    tp_countryid
+
+
 
   ! Tenporal profile
   CHARACTER(LEN=20), DIMENSION(:), ALLOCATABLE :: tracercat
@@ -29,6 +52,7 @@ CONTAINS
 
   ! Allocate the data fields necessary for the vertical profile
   SUBROUTINE init_vertical_profile_data_fields(nlevel)
+    IMPLICIT NONE
     INTEGER, INTENT(IN) :: nlevel ! Number of level in the vertical profile
 
     ALLOCATE(layer_bot(nlevel))
@@ -40,6 +64,7 @@ CONTAINS
   ! Read the vertical profile from NetCDF file and store them into their
   ! corresponding arrays.
   SUBROUTINE read_vertical_profile_from_file()
+    IMPLICIT NONE
     INTEGER :: ncid, varid, err_status
 
     CALL ncdf_call_and_check_status(nf90_open(vertical_profile_nc, NF90_NOWRITE, ncid))
@@ -58,6 +83,7 @@ CONTAINS
 
 
   SUBROUTINE ncdf_call_and_check_status(status)
+    IMPLICIT NONE
     INTEGER, INTENT(IN) :: status
 
     IF (status /= nf90_noerr) THEN
@@ -67,6 +93,19 @@ CONTAINS
   END SUBROUTINE ncdf_call_and_check_status
 
   ! Read all the temporal profile for the Nx different tracers
+
+  SUBROUTINE init_temporal_profile_fields(ntracercat, ncountry)
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: ntracercat, ncountry
+
+    ALLOCATE(tp_tracercat(ntracercat))
+    ALLOCATE(tp_hourofday(tp_param_hourofday, ntracercat))
+    ALLOCATE(tp_dayofweek(tp_param_dayofweek, ntracercat, ncountry))
+    ALLOCATE(tp_monthofyear(tp_param_monthofyear, ntracercat, ncountry))
+    ALLOCATE(tp_hour(tp_param_hour, ntracercat))
+    ALLOCATE(tp_countryid(ncountry))
+  END SUBROUTINE init_temporal_profile_fields
+
   SUBROUTINE read_temporal_profile(ntracer)
     IMPLICIT NONE
     INTEGER, INTENT(IN) :: ntracer ! Number of tracers for temporal profile

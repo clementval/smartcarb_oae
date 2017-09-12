@@ -21,6 +21,8 @@ MODULE m_smartcarb_oae
   CHARACTER (len = *), PARAMETER :: temporal_profile_nc = "../data/temporal_profile.nc"
 
   ! Vertical profile array
+  INTEGER :: vp_nlevel
+
   REAL, DIMENSION(:), ALLOCATABLE :: &
     vp_layer_bot,                       &
     vp_layer_top,                       &
@@ -54,14 +56,23 @@ MODULE m_smartcarb_oae
 CONTAINS
 
   ! Allocate the data fields necessary for the vertical profile
-  SUBROUTINE init_vertical_profile_fields(nlevel)
+  SUBROUTINE init_vertical_profile_fields()
     IMPLICIT NONE
-    INTEGER, INTENT(IN) :: nlevel ! Number of level in the vertical profile
+    INTEGER :: ncid, dimid
 
-    ALLOCATE(vp_layer_bot(nlevel))
-    ALLOCATE(vp_layer_top(nlevel))
-    ALLOCATE(vp_factor_area(nlevel))
-    ALLOCATE(vp_factor_point(nlevel))
+    ! Open the NetCDF file
+    CALL ncdf_call_and_check_status(nf90_open(vertical_profile_nc, NF90_NOWRITE, ncid))
+
+    ! Get level dimension information
+    CALL ncdf_call_and_check_status(nf90_inq_dimid(ncid, "level", dimid))
+    CALL ncdf_call_and_check_status(nf90_inquire_dimension(ncid, dimid, len = vp_nlevel))
+
+    CALL ncdf_call_and_check_status(nf90_close(ncid))
+
+    ALLOCATE(vp_layer_bot(vp_nlevel))
+    ALLOCATE(vp_layer_top(vp_nlevel))
+    ALLOCATE(vp_factor_area(vp_nlevel))
+    ALLOCATE(vp_factor_point(vp_nlevel))
   END SUBROUTINE init_vertical_profile_fields
 
   ! Read the vertical profile from NetCDF file and store them into their

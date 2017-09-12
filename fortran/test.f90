@@ -3,7 +3,7 @@ program test
   use m_smartcarb_oae
   implicit none
 
-  call init_vertical_profile_fields(vertical_profile_nlevel)
+  call init_vertical_profile_fields()
   call read_vertical_profile_from_file()
 
   print*,'SMARTCARB OAE TESTS'

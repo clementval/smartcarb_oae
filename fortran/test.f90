@@ -25,4 +25,6 @@ program test
   print*,'countryID',sum(tp_countryid)
 
 
+  CALL oae_cleanup()
+
 end program test

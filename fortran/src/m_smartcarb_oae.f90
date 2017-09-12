@@ -9,15 +9,17 @@ MODULE m_smartcarb_oae
   IMPLICIT NONE
 
   ! Constant variable
-  INTEGER, PARAMETER :: nlevel = 16
+  ! May be change to NAMELIST parameter if needed by the implementation
+  INTEGER, PARAMETER :: vertical_profile_nlevel = 16
+
 
   character (len = *), parameter :: vertical_profile_nc = "../data/vertical_profile.nc"
 
   ! Vertical profile values
-  REAL, DIMENSION(nlevel) :: &
-    layer_bot,               &
-    layer_top,               &
-    factor_area,             &
+  REAL, DIMENSION(:), ALLOCATABLE :: &
+    layer_bot,                       &
+    layer_top,                       &
+    factor_area,                     &
     factor_point
 
   ! Tenporal profile
@@ -25,7 +27,19 @@ MODULE m_smartcarb_oae
 
 CONTAINS
 
-  SUBROUTINE read_vertical_profile()
+  ! Allocate the data fields necessary for the vertical profile
+  SUBROUTINE init_vertical_profile_data_fields(nlevel)
+    INTEGER, INTENT(IN) :: nlevel ! Number of level in the vertical profile
+
+    ALLOCATE(layer_bot(nlevel))
+    ALLOCATE(layer_top(nlevel))
+    ALLOCATE(factor_area(nlevel))
+    ALLOCATE(factor_point(nlevel))
+  END SUBROUTINE init_vertical_profile_data_fields
+
+  ! Read the vertical profile from NetCDF file and store them into their
+  ! corresponding arrays.
+  SUBROUTINE read_vertical_profile_from_file()
     INTEGER :: ncid, varid, err_status
 
     CALL ncdf_call_and_check_status(nf90_open(vertical_profile_nc, NF90_NOWRITE, ncid))
@@ -38,7 +52,10 @@ CONTAINS
     CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "factor_point", varid))
     CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, factor_point))
     CALL ncdf_call_and_check_status(nf90_close(ncid))
-  END SUBROUTINE read_vertical_profile
+
+  END SUBROUTINE read_vertical_profile_from_file
+
+
 
   SUBROUTINE ncdf_call_and_check_status(status)
     INTEGER, INTENT(IN) :: status

@@ -137,23 +137,27 @@ CONTAINS
 
     ! Read hourofday variable
     CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "hourofday", varid))
-    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_hourofday))
-    !
-    ! ! Read dayofweek variable
-    ! CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "dayofweek", varid))
-    ! CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_dayofweek))
-    !
-    ! ! Read monthofyear variable
-    ! CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "monthofyear", varid))
-    ! CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_monthofyear))
-    !
-    ! ! Read hour variable
-    ! CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "hour", varid))
-    ! CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_hour))
-    !
-    ! ! Read countryID variable
-    ! CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "countryID", varid))
-    ! CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_countryid))
+    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_hourofday, &
+      start = (/1, 1/), count = (/tp_ntracercat, tp_param_hourofday/)))
+
+    ! Read dayofweek variable
+    CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "dayofweek", varid))
+    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_dayofweek, &
+      start = (/1,1/), count = (/tp_ncountry, tp_ntracercat, tp_param_dayofweek/)))
+
+    ! Read monthofyear variable
+    CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "monthofyear", varid))
+    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_monthofyear, &
+      start = (/1,1/), count = (/tp_ncountry, tp_ntracercat, tp_param_monthofyear/)))
+
+    ! Read hour variable
+    CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "hour", varid))
+    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_hour, &
+      start = (/1,1/), count = (/tp_ntracercat, tp_param_hour/)))
+
+    ! Read countryID variable
+    CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "countryID", varid))
+    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_countryid))
 
     ! Close the NetCDF file
     CALL ncdf_call_and_check_status(nf90_close(ncid))

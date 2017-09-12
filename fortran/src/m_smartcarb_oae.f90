@@ -109,6 +109,18 @@ CONTAINS
   SUBROUTINE read_temporal_profile_from_file()
     IMPLICIT NONE
 
+    INTEGER :: ncid, varid, err_status
+
+    ! Open the NetCDF file
+    CALL ncdf_call_and_check_status(nf90_open(temporal_profile_nc, NF90_NOWRITE, ncid))
+
+    ! Read tracercat variable
+    CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "tracercat", varid))
+    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_tracercat))
+
+    ! Close the NetCDF file
+    CALL ncdf_call_and_check_status(nf90_close(ncid))
+
   END SUBROUTINE read_temporal_profile_from_file
 
 

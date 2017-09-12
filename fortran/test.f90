@@ -15,8 +15,11 @@ program test
 
   ! Tempororal profile
   call init_temporal_profile_fields(100, 100)
+  call read_temporal_profile_from_file()
 
-
+  print*,'-- Tempororal profile'
+  
+  print*,tp_tracercat
 
 
 end program test

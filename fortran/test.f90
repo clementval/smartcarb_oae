@@ -3,8 +3,8 @@ program test
   use m_smartcarb_oae
   implicit none
 
-  call init_vertical_profile_fields()
-  call read_vertical_profile_from_file()
+
+  CALL oae_init()
 
   print*,'SMARTCARB OAE TESTS'
   print*,'-- Vertical profile'
@@ -15,10 +15,8 @@ program test
 
   ! Tempororal profile
   print*,'-- Tempororal profile'
-  call init_temporal_profile_fields()
   print*,'  tracercat size:', tp_ntracercat
   print*,'  country size:', tp_ncountry
-  call read_temporal_profile_from_file()
   print*,'tracercat',tp_tracercat
   print*,'hourofday',sum(tp_hourofday)
   print*,'dayofweek',sum(tp_dayofweek)

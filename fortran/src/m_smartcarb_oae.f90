@@ -9,19 +9,15 @@ MODULE m_smartcarb_oae
   IMPLICIT NONE
 
   ! Constant variable
-  ! May be change to NAMELIST parameter if needed by the implementation
-  INTEGER, PARAMETER :: vertical_profile_nlevel = 16
-
+  INTEGER, PARAMETER :: vp_nlevel = 16
   INTEGER, PARAMETER :: tp_param_hourofday = 24
   INTEGER, PARAMETER :: tp_param_dayofweek = 7
   INTEGER, PARAMETER :: tp_param_monthofyear = 12
   INTEGER, PARAMETER :: tp_param_hour = 8784
 
+  ! TODO filename specs
   CHARACTER (len = *), PARAMETER :: vertical_profile_nc = "../data/vertical_profile.nc"
   CHARACTER (len = *), PARAMETER :: temporal_profile_nc = "../data/temporal_profile.nc"
-
-  ! Vertical profile array
-  INTEGER :: vp_nlevel
 
   REAL, DIMENSION(:), ALLOCATABLE :: &
     vp_layer_bot,                       &
@@ -58,22 +54,21 @@ CONTAINS
   ! Allocate the data fields necessary for the vertical profile
   SUBROUTINE init_vertical_profile_fields()
     IMPLICIT NONE
-    INTEGER :: ncid, dimid
-
-    ! Open the NetCDF file
-    CALL ncdf_call_and_check_status(nf90_open(vertical_profile_nc, NF90_NOWRITE, ncid))
-
-    ! Get level dimension information
-    CALL ncdf_call_and_check_status(nf90_inq_dimid(ncid, "level", dimid))
-    CALL ncdf_call_and_check_status(nf90_inquire_dimension(ncid, dimid, len = vp_nlevel))
-
-    CALL ncdf_call_and_check_status(nf90_close(ncid))
 
     ALLOCATE(vp_layer_bot(vp_nlevel))
     ALLOCATE(vp_layer_top(vp_nlevel))
     ALLOCATE(vp_factor_area(vp_nlevel))
     ALLOCATE(vp_factor_point(vp_nlevel))
   END SUBROUTINE init_vertical_profile_fields
+
+  SUBROUTINE cleanup_vertical_profile_fields()
+    IMPLICIT NONE
+
+    DEALLOCATE(vp_layer_bot)
+    DEALLOCATE(vp_layer_top)
+    DEALLOCATE(vp_factor_area)
+    DEALLOCATE(vp_factor_point)
+  END SUBROUTINE cleanup_vertical_profile_fields
 
   ! Read the vertical profile from NetCDF file and store them into their
   ! corresponding arrays.
@@ -134,6 +129,17 @@ CONTAINS
     ALLOCATE(tp_countryid(tp_ncountry))
   END SUBROUTINE init_temporal_profile_fields
 
+  SUBROUTINE cleanup_temporal_profile_fields()
+    IMPLICIT NONE
+
+    DEALLOCATE(tp_tracercat)
+    DEALLOCATE(tp_hourofday)
+    DEALLOCATE(tp_dayofweek)
+    DEALLOCATE(tp_monthofyear)
+    DEALLOCATE(tp_hour)
+    DEALLOCATE(tp_countryid)
+  END SUBROUTINE cleanup_temporal_profile_fields
+
   SUBROUTINE read_temporal_profile_from_file()
     IMPLICIT NONE
 
@@ -179,5 +185,22 @@ CONTAINS
 
   SUBROUTINE read_gridded_emissions()
   END SUBROUTINE read_gridded_emissions
+
+  SUBROUTINE oae_init()
+    IMPLICIT NONE
+
+    CALL init_vertical_profile_fields()
+    CALL init_temporal_profile_fields()
+
+    CALL read_vertical_profile_from_file()
+    CALL read_temporal_profile_from_file()
+  END SUBROUTINE oae_init
+
+  SUBROUTINE oae_cleanup()
+    IMPLICIT NONE
+
+    CALL cleanup_vertical_profile_fields()
+    CALL cleanup_temporal_profile_fields()
+  END SUBROUTINE oae_cleanup
 
 END MODULE m_smartcarb_oae

@@ -1,7 +1,7 @@
 !
+! SMARTCARB - Online Anthropogenic Emissions
 !
 !
-
 
 MODULE m_smartcarb_oae
   USE netcdf
@@ -20,41 +20,49 @@ MODULE m_smartcarb_oae
   CHARACTER (len = *), PARAMETER :: temporal_profile_nc = "../data/temporal_profile.nc"
   CHARACTER (len = *), PARAMETER :: gridded_emissions_nc = "../data/emissions.nc"
 
+  !
   ! Vertical profile arrays
+  !
   REAL, DIMENSION(:), ALLOCATABLE :: &
-    vp_layer_bot,                       &
-    vp_layer_top,                       &
-    vp_factor_area,                     &
-    vp_factor_point
+    vp_layer_bot,                    & ! bottom of layer above ground
+    vp_layer_top,                    & ! top of layer above ground
+    vp_factor_area,                  & ! scale factor for area sources
+    vp_factor_point                    ! scale factor for point sources
 
+  !
   ! Tempororal profile arrays
+  !
   INTEGER :: tp_ntracercat ! Number of tracer category in temporal profile
   INTEGER :: tp_ncountry   ! Number of country ID in temporal profile
 
   CHARACTER(LEN=20), DIMENSION(:), ALLOCATABLE :: &
-    tp_tracercat
+    tp_tracercat                           ! Tracer name
 
   REAL, DIMENSION(:,:,:), ALLOCATABLE :: &
-    tp_dayofweek,                        &
-    tp_monthofyear
+    tp_dayofweek,                        & ! day-of-week scaling factor
+    tp_monthofyear                         ! seasonal scaling factor
 
-  REAL, DIMENSION(:,:), ALLOCATABLE :: &
-    tp_hourofday,                      &
-    tp_hour
+  REAL, DIMENSION(:,:),   ALLOCATABLE :: &
+    tp_hourofday,                        & ! diurnal scaling factor
+    tp_hour                                ! hourly scaling factor
 
-  INTEGER, DIMENSION(:), ALLOCATABLE :: &
-    tp_countryid
+  INTEGER, DIMENSION(:),  ALLOCATABLE :: &
+    tp_countryid                           ! EMEP country code
 
+  !
   ! Gridded emissions fields
-  REAL, DIMENSION(:,:,:), ALLOCATABLE :: &
-    gridded_emissions
-
+  !
   CHARACTER(LEN=20), DIMENSION(:), ALLOCATABLE :: &
-    gridded_emissions_idx
+    gridded_emissions_idx                  ! Name of the annual mean emissions
+                                           ! fields
+
+  REAL, DIMENSION(:,:,:), ALLOCATABLE :: &
+    gridded_emissions                      ! Annual mean 2D emissions fields
+
 
 CONTAINS
 
-  ! Allocate the data fields necessary for the vertical profile
+  ! Allocate the data structure necessary for the vertical profile
   SUBROUTINE init_vertical_profile_fields()
     IMPLICIT NONE
 
@@ -64,6 +72,7 @@ CONTAINS
     ALLOCATE(vp_factor_point(vp_nlevel))
   END SUBROUTINE init_vertical_profile_fields
 
+  ! Cleanup data structure necessary for the vertical profile
   SUBROUTINE cleanup_vertical_profile_fields()
     IMPLICIT NONE
 
@@ -89,23 +98,9 @@ CONTAINS
     CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "factor_point", varid))
     CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, vp_factor_point))
     CALL ncdf_call_and_check_status(nf90_close(ncid))
-
   END SUBROUTINE read_vertical_profile_from_file
 
-
-
-  SUBROUTINE ncdf_call_and_check_status(status)
-    IMPLICIT NONE
-    INTEGER, INTENT(IN) :: status
-
-    IF (status /= nf90_noerr) THEN
-      print *, trim(nf90_strerror(status))
-      stop "NetCDF error"
-    END IF
-  END SUBROUTINE ncdf_call_and_check_status
-
   ! Read all the temporal profile for the Nx different tracers
-
   SUBROUTINE init_temporal_profile_fields()
     IMPLICIT NONE
     INTEGER :: ncid, dimid
@@ -187,7 +182,8 @@ CONTAINS
 
 
 
-
+  ! Allocate the data structure for the gridded emissions fields and read them
+  ! from the NetCDF file.
   SUBROUTINE init_and_read_gridded_emissions()
     IMPLICIT NONE
 
@@ -205,11 +201,14 @@ CONTAINS
     CALL ncdf_call_and_check_status(nf90_inquire(ncid, nVariables = nc_nvar))
     ALLOCATE(varids(nc_nvar))
     CALL ncdf_call_and_check_status(nf90_inq_varids(ncid, nc_nvar, varids))
+
+    ! Allocate the gridded emissions according to the number of fields
     ALLOCATE(gridded_emissions(nc_nvar - 2, 700, 800))
     ALLOCATE(gridded_emissions_idx(nc_nvar - 2))
     DO i = 1, nc_nvar
       CALL ncdf_call_and_check_status(nf90_inquire_variable(ncid, varids(i), name=var_name))
       IF (var_name /= 'rlon' .AND. var_name /= 'rlat') THEN
+        ! Read the actual field
         gridded_emissions_idx(gridded_idx) = var_name
         CALL ncdf_call_and_check_status(nf90_get_var(ncid, varids(i), &
           gridded_emissions(gridded_idx,:,:), start = (/1,1/), count=(/800,700/)))
@@ -221,6 +220,8 @@ CONTAINS
     CALL ncdf_call_and_check_status(nf90_close(ncid))
   END SUBROUTINE init_and_read_gridded_emissions
 
+
+  ! Find the index of a gridded emission field based on its name
   FUNCTION get_gridded_emissions_idx(name)
     CHARACTER(LEN=*), INTENT(IN) :: name
     INTEGER :: get_gridded_emissions_idx
@@ -234,7 +235,7 @@ CONTAINS
     END DO
   END FUNCTION get_gridded_emissions_idx
 
-
+  ! Clean-up data structure for gridded emission fields
   SUBROUTINE cleanup_gridded_emissions()
     IMPLICIT NONE
 
@@ -261,5 +262,15 @@ CONTAINS
     CALL cleanup_temporal_profile_fields()
     CALL cleanup_gridded_emissions()
   END SUBROUTINE oae_cleanup
+
+  SUBROUTINE ncdf_call_and_check_status(status)
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: status
+
+    IF (status /= nf90_noerr) THEN
+      print *, trim(nf90_strerror(status))
+      stop "NetCDF error"
+    END IF
+  END SUBROUTINE ncdf_call_and_check_status
 
 END MODULE m_smartcarb_oae

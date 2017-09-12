@@ -3,14 +3,19 @@ program test
   use m_smartcarb_oae
   implicit none
 
-  call init_vertical_profile_data_fields(vertical_profile_nlevel)
+  call init_vertical_profile_fields(vertical_profile_nlevel)
   call read_vertical_profile_from_file()
 
   print*,'SMARTCARB OAE TESTS'
-  print*,layer_bot
-  print*,layer_top
-  print*,factor_area
-  print*,factor_point
+  print*,'-- Vertical profile'
+  print*,vp_layer_bot
+  print*,vp_layer_top
+  print*,vp_factor_area
+  print*,vp_factor_point
+
+  ! Tempororal profile
+  call init_temporal_profile_fields(100, 100)
+
 
 
 

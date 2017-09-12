@@ -22,10 +22,10 @@ MODULE m_smartcarb_oae
 
   ! Vertical profile array
   REAL, DIMENSION(:), ALLOCATABLE :: &
-    layer_bot,                       &
-    layer_top,                       &
-    factor_area,                     &
-    factor_point
+    vp_layer_bot,                       &
+    vp_layer_top,                       &
+    vp_factor_area,                     &
+    vp_factor_point
 
 
   ! Tempororal profile arrays
@@ -55,10 +55,10 @@ CONTAINS
     IMPLICIT NONE
     INTEGER, INTENT(IN) :: nlevel ! Number of level in the vertical profile
 
-    ALLOCATE(layer_bot(nlevel))
-    ALLOCATE(layer_top(nlevel))
-    ALLOCATE(factor_area(nlevel))
-    ALLOCATE(factor_point(nlevel))
+    ALLOCATE(vp_layer_bot(nlevel))
+    ALLOCATE(vp_layer_top(nlevel))
+    ALLOCATE(vp_factor_area(nlevel))
+    ALLOCATE(vp_factor_point(nlevel))
   END SUBROUTINE init_vertical_profile_fields
 
   ! Read the vertical profile from NetCDF file and store them into their
@@ -69,13 +69,13 @@ CONTAINS
 
     CALL ncdf_call_and_check_status(nf90_open(vertical_profile_nc, NF90_NOWRITE, ncid))
     CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "layer_bot", varid))
-    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, layer_bot))
+    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, vp_layer_bot))
     CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "layer_top", varid))
-    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, layer_top))
+    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, vp_layer_top))
     CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "factor_area", varid))
-    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, factor_area))
+    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, vp_factor_area))
     CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "factor_point", varid))
-    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, factor_point))
+    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, vp_factor_point))
     CALL ncdf_call_and_check_status(nf90_close(ncid))
 
   END SUBROUTINE read_vertical_profile_from_file

@@ -19,19 +19,31 @@ v_rlat.units = 'degrees'
 v_rlat.standard_name = 'latitude'
 
 X1_01_area = dataset.createVariable('X1_01_area', np.float64, ('rlon', 'rlat',))
-X1_01_area.fill_value = -9999.0
 X1_01_area.units = 'kg h-1 cell-1'
+
+for x in range(0, 700):
+    for y in range(0, 800):
+        X1_01_area[x,y] = 0.1
 
 X1_01_point = dataset.createVariable('X1_01_point', np.float64, ('rlon', 'rlat',))
 X1_01_point.fill_value = -9999.0
 X1_01_point.units = 'kg h-1 cell-1'
+for x in range(0, 700):
+    for y in range(0, 800):
+        X1_01_point[x,y] = 0.1
 
 X1_02_area = dataset.createVariable('X1_02_area', np.float64, ('rlon', 'rlat',))
 X1_02_area.fill_value = -9999.0
 X1_02_area.units = 'kg h-1 cell-1'
+for x in range(0, 700):
+    for y in range(0, 800):
+        X1_02_area[x,y] = 0.1
 
 X1_02_point = dataset.createVariable('X1_02_point', np.float64, ('rlon', 'rlat',))
 X1_02_point.fill_value = -9999.0
 X1_02_point.units = 'kg h-1 cell-1'
+for x in range(0, 700):
+    for y in range(0, 800):
+        X1_02_point[x,y] = 0.1
 
 dataset.close()

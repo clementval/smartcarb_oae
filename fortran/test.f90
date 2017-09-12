@@ -14,12 +14,17 @@ program test
   print*,vp_factor_point
 
   ! Tempororal profile
-  call init_temporal_profile_fields(100, 100)
-  call read_temporal_profile_from_file()
-
   print*,'-- Tempororal profile'
-  
-  print*,tp_tracercat
+  call init_temporal_profile_fields()
+  print*,'  tracercat size:', tp_ntracercat
+  print*,'  country size:', tp_ncountry
+  call read_temporal_profile_from_file()
+  print*,'tracercat',tp_tracercat
+  print*,'hourofday',sum(tp_hourofday)
+  print*,'dayofweek',sum(tp_dayofweek)
+  print*,'monthofyear',sum(tp_monthofyear)
+  print*,'hour',sum(tp_hour)
+  print*,'countryID',sum(tp_countryid)
 
 
 end program test

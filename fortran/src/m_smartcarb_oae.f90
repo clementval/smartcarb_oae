@@ -29,6 +29,9 @@ MODULE m_smartcarb_oae
 
 
   ! Tempororal profile arrays
+  INTEGER :: tp_ntracercat ! Number of tracer category in temporal profile
+  INTEGER :: tp_ncountry   ! Number of country ID in temporal profile
+
   CHARACTER(LEN=20), DIMENSION(:), ALLOCATABLE :: &
     tp_tracercat
 
@@ -94,16 +97,30 @@ CONTAINS
 
   ! Read all the temporal profile for the Nx different tracers
 
-  SUBROUTINE init_temporal_profile_fields(ntracercat, ncountry)
+  SUBROUTINE init_temporal_profile_fields()
     IMPLICIT NONE
-    INTEGER, INTENT(IN) :: ntracercat, ncountry
+    INTEGER :: ncid, dimid
 
-    ALLOCATE(tp_tracercat(ntracercat))
-    ALLOCATE(tp_hourofday(tp_param_hourofday, ntracercat))
-    ALLOCATE(tp_dayofweek(tp_param_dayofweek, ntracercat, ncountry))
-    ALLOCATE(tp_monthofyear(tp_param_monthofyear, ntracercat, ncountry))
-    ALLOCATE(tp_hour(tp_param_hour, ntracercat))
-    ALLOCATE(tp_countryid(ncountry))
+    ! Open the NetCDF file
+    CALL ncdf_call_and_check_status(nf90_open(temporal_profile_nc, NF90_NOWRITE, ncid))
+
+    ! Get tracercat dimension information
+    CALL ncdf_call_and_check_status(nf90_inq_dimid(ncid, "tracercat", dimid))
+    CALL ncdf_call_and_check_status(nf90_inquire_dimension(ncid, dimid, len = tp_ntracercat))
+
+    ! Get countryID dimension information
+    CALL ncdf_call_and_check_status(nf90_inq_dimid(ncid, "country", dimid))
+    CALL ncdf_call_and_check_status(nf90_inquire_dimension(ncid, dimid, len = tp_ncountry))
+
+    CALL ncdf_call_and_check_status(nf90_close(ncid))
+
+    ! Allocate fields to store temporal profile information
+    ALLOCATE(tp_tracercat(tp_ntracercat))
+    ALLOCATE(tp_hourofday(tp_param_hourofday, tp_ntracercat))
+    ALLOCATE(tp_dayofweek(tp_param_dayofweek, tp_ntracercat, tp_ncountry))
+    ALLOCATE(tp_monthofyear(tp_param_monthofyear, tp_ntracercat, tp_ncountry))
+    ALLOCATE(tp_hour(tp_param_hour, tp_ntracercat))
+    ALLOCATE(tp_countryid(tp_ncountry))
   END SUBROUTINE init_temporal_profile_fields
 
   SUBROUTINE read_temporal_profile_from_file()
@@ -117,6 +134,26 @@ CONTAINS
     ! Read tracercat variable
     CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "tracercat", varid))
     CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_tracercat))
+
+    ! Read hourofday variable
+    CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "hourofday", varid))
+    CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_hourofday))
+    !
+    ! ! Read dayofweek variable
+    ! CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "dayofweek", varid))
+    ! CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_dayofweek))
+    !
+    ! ! Read monthofyear variable
+    ! CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "monthofyear", varid))
+    ! CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_monthofyear))
+    !
+    ! ! Read hour variable
+    ! CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "hour", varid))
+    ! CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_hour))
+    !
+    ! ! Read countryID variable
+    ! CALL ncdf_call_and_check_status(nf90_inq_varid(ncid, "countryID", varid))
+    ! CALL ncdf_call_and_check_status(nf90_get_var(ncid, varid, tp_countryid))
 
     ! Close the NetCDF file
     CALL ncdf_call_and_check_status(nf90_close(ncid))

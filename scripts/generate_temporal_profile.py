@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
+import netCDF4
 from netCDF4 import Dataset
 import numpy as np
 
 dataset = Dataset('data/temporal_profile.nc', 'w', format='NETCDF4_CLASSIC')
 
-dim_tracercat = dataset.createDimension('tracercat', None)
+dim_tracercat = dataset.createDimension('tracercat', 100) # Dummy size
 dim_hourofday = dataset.createDimension('hourofday', 24)
 dim_dayofweek = dataset.createDimension('dayofweek', 7)
 dim_monthofyear = dataset.createDimension('monthofyear', 12)
@@ -14,8 +15,15 @@ dim_country = dataset.createDimension('country', 200) # Dummy size for now
 dim_nchar = dataset.createDimension('nchar', 20)
 
 
-v_tracercat = dataset.createVariable('tracercat', 'S1', ('tracercat', 'nchar',))
+v_tracercat = dataset.createVariable('tracercat', 'S1', ('tracercat', 'nchar'))
 v_tracercat.long_name = 'tracer name'
+# Generate tracer cat name
+array_tracercat = np.empty(100, dtype='S20')
+for i in range(0,100):
+    array_tracercat[i] = 'Tracer Cat No ' + str(i)
+array_out = netCDF4.stringtochar(array_tracercat)
+v_tracercat[:] = array_out
+
 
 v_hourofday = dataset.createVariable('hourofday', np.float64, ('hourofday', 'tracercat',))
 v_hourofday.units = '1'

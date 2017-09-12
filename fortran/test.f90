@@ -7,6 +7,8 @@ program test
   CALL oae_init()
 
   print*,'SMARTCARB OAE TESTS'
+
+  ! Vertical profile
   print*,'-- Vertical profile'
   print*,vp_layer_bot
   print*,vp_layer_top
@@ -24,6 +26,12 @@ program test
   print*,'hour',sum(tp_hour)
   print*,'countryID',sum(tp_countryid)
 
+
+  print*,'Index X1_01_area', get_gridded_emissions_idx('X1_01_area')
+  print*,'Index X1_01_point', get_gridded_emissions_idx('X1_01_point')
+  print*,'Index X1_02_area', get_gridded_emissions_idx('X1_02_area')
+  print*,'Index X1_02_point', get_gridded_emissions_idx('X1_02_point')
+  print*,'Index Dummy', get_gridded_emissions_idx('Dummy')
 
   CALL oae_cleanup()
 

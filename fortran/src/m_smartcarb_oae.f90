@@ -18,13 +18,14 @@ MODULE m_smartcarb_oae
   ! TODO filename specs
   CHARACTER (len = *), PARAMETER :: vertical_profile_nc = "../data/vertical_profile.nc"
   CHARACTER (len = *), PARAMETER :: temporal_profile_nc = "../data/temporal_profile.nc"
+  CHARACTER (len = *), PARAMETER :: gridded_emissions_nc = "../data/emissions.nc"
 
+  ! Vertical profile arrays
   REAL, DIMENSION(:), ALLOCATABLE :: &
     vp_layer_bot,                       &
     vp_layer_top,                       &
     vp_factor_area,                     &
     vp_factor_point
-
 
   ! Tempororal profile arrays
   INTEGER :: tp_ntracercat ! Number of tracer category in temporal profile
@@ -44,10 +45,12 @@ MODULE m_smartcarb_oae
   INTEGER, DIMENSION(:), ALLOCATABLE :: &
     tp_countryid
 
+  ! Gridded emissions fields
+  REAL, DIMENSION(:,:,:), ALLOCATABLE :: &
+    gridded_emissions
 
-
-  ! Tenporal profile
-  CHARACTER(LEN=20), DIMENSION(:), ALLOCATABLE :: tracercat
+  CHARACTER(LEN=20), DIMENSION(:), ALLOCATABLE :: &
+    gridded_emissions_idx
 
 CONTAINS
 
@@ -183,8 +186,61 @@ CONTAINS
 
 
 
-  SUBROUTINE read_gridded_emissions()
-  END SUBROUTINE read_gridded_emissions
+
+
+  SUBROUTINE init_and_read_gridded_emissions()
+    IMPLICIT NONE
+
+    INTEGER :: ncid, nc_nvar, i, gridded_idx
+
+    INTEGER, DIMENSION(:), ALLOCATABLE :: varids
+    CHARACTER(LEN=20) :: var_name
+
+    gridded_idx = 1
+
+    ! Open the NetCDF file
+    CALL ncdf_call_and_check_status(nf90_open(gridded_emissions_nc, NF90_NOWRITE, ncid))
+
+    ! Get number of variable in the file
+    CALL ncdf_call_and_check_status(nf90_inquire(ncid, nVariables = nc_nvar))
+    ALLOCATE(varids(nc_nvar))
+    CALL ncdf_call_and_check_status(nf90_inq_varids(ncid, nc_nvar, varids))
+    ALLOCATE(gridded_emissions(nc_nvar - 2, 700, 800))
+    ALLOCATE(gridded_emissions_idx(nc_nvar - 2))
+    DO i = 1, nc_nvar
+      CALL ncdf_call_and_check_status(nf90_inquire_variable(ncid, varids(i), name=var_name))
+      IF (var_name /= 'rlon' .AND. var_name /= 'rlat') THEN
+        gridded_emissions_idx(gridded_idx) = var_name
+        CALL ncdf_call_and_check_status(nf90_get_var(ncid, varids(i), &
+          gridded_emissions(gridded_idx,:,:), start = (/1,1/), count=(/800,700/)))
+        gridded_idx = gridded_idx + 1
+      END IF
+    END DO
+
+    ! Close the NetCDF file
+    CALL ncdf_call_and_check_status(nf90_close(ncid))
+  END SUBROUTINE init_and_read_gridded_emissions
+
+  FUNCTION get_gridded_emissions_idx(name)
+    CHARACTER(LEN=*), INTENT(IN) :: name
+    INTEGER :: get_gridded_emissions_idx
+    INTEGER :: i
+    get_gridded_emissions_idx = 0
+    DO i = 1, SIZE(gridded_emissions_idx)
+      IF(name == gridded_emissions_idx(i)) THEN
+        get_gridded_emissions_idx = i
+        EXIT
+      END IF
+    END DO
+  END FUNCTION get_gridded_emissions_idx
+
+
+  SUBROUTINE cleanup_gridded_emissions()
+    IMPLICIT NONE
+
+    IF (ALLOCATED(gridded_emissions)) DEALLOCATE(gridded_emissions)
+    IF (ALLOCATED(gridded_emissions_idx)) DEALLOCATE(gridded_emissions_idx)
+  END SUBROUTINE cleanup_gridded_emissions
 
   SUBROUTINE oae_init()
     IMPLICIT NONE
@@ -194,6 +250,8 @@ CONTAINS
 
     CALL read_vertical_profile_from_file()
     CALL read_temporal_profile_from_file()
+
+    CALL init_and_read_gridded_emissions()
   END SUBROUTINE oae_init
 
   SUBROUTINE oae_cleanup()
@@ -201,6 +259,7 @@ CONTAINS
 
     CALL cleanup_vertical_profile_fields()
     CALL cleanup_temporal_profile_fields()
+    CALL cleanup_gridded_emissions()
   END SUBROUTINE oae_cleanup
 
 END MODULE m_smartcarb_oae

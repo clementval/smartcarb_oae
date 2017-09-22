@@ -4,57 +4,58 @@
 !
 
 MODULE m_smartcarb_oae
+  USE mo_kind
   USE netcdf
 
   IMPLICIT NONE
 
   ! Constant variable
-  INTEGER, PARAMETER :: vp_nlevel = 16
-  INTEGER, PARAMETER :: tp_param_hourofday = 24
-  INTEGER, PARAMETER :: tp_param_dayofweek = 7
-  INTEGER, PARAMETER :: tp_param_monthofyear = 12
-  INTEGER, PARAMETER :: tp_param_hour = 8784
+  INTEGER(KIND=iinteger), PARAMETER :: vp_nlevel = 16
+  INTEGER(KIND=iinteger), PARAMETER :: tp_param_hourofday = 24
+  INTEGER(KIND=iinteger), PARAMETER :: tp_param_dayofweek = 7
+  INTEGER(KIND=iinteger), PARAMETER :: tp_param_monthofyear = 12
+  INTEGER(KIND=iinteger), PARAMETER :: tp_param_hour = 8784
 
   ! TODO filename specs
-  CHARACTER (len = *), PARAMETER :: vertical_profile_nc = "../data/vertical_profile.nc"
-  CHARACTER (len = *), PARAMETER :: temporal_profile_nc = "../data/temporal_profile.nc"
-  CHARACTER (len = *), PARAMETER :: gridded_emissions_nc = "../data/emissions.nc"
+  CHARACTER(len=*), PARAMETER :: vertical_profile_nc = "../data/vertical_profile.nc"
+  CHARACTER(len=*), PARAMETER :: temporal_profile_nc = "../data/temporal_profile.nc"
+  CHARACTER(len=*), PARAMETER :: gridded_emissions_nc = "../data/emissions.nc"
 
   !
   ! Vertical profile arrays
   !
-  REAL, DIMENSION(:), ALLOCATABLE :: &
-    vp_layer_bot,                    & ! bottom of layer above ground
-    vp_layer_top,                    & ! top of layer above ground
-    vp_factor_area,                  & ! scale factor for area sources
-    vp_factor_point                    ! scale factor for point sources
+  REAL(KIND=wp), DIMENSION(:), ALLOCATABLE :: &
+    vp_layer_bot,            & ! bottom of layer above ground
+    vp_layer_top,            & ! top of layer above ground
+    vp_factor_area,          & ! scale factor for area sources
+    vp_factor_point            ! scale factor for point sources
 
   !
   ! Tempororal profile arrays
   !
-  INTEGER :: tp_ntracercat ! Number of tracer category in temporal profile
-  INTEGER :: tp_ncountry   ! Number of country ID in temporal profile
+  INTEGER(KIND=iinteger) :: tp_ntracercat ! Number of tracer category in temporal profile
+  INTEGER(KIND=iinteger) :: tp_ncountry   ! Number of country ID in temporal profile
 
   CHARACTER(LEN=20), DIMENSION(:), ALLOCATABLE :: &
-    tp_tracercat                           ! Tracer name
+    tp_tracercat             ! Tracer name
 
-  REAL, DIMENSION(:,:,:), ALLOCATABLE :: &
-    tp_dayofweek,                        & ! day-of-week scaling factor
-    tp_monthofyear                         ! seasonal scaling factor
+  REAL(KIND=wp), DIMENSION(:,:,:), ALLOCATABLE :: &
+    tp_dayofweek,          & ! day-of-week scaling factor
+    tp_monthofyear           ! seasonal scaling factor
 
-  REAL, DIMENSION(:,:),   ALLOCATABLE :: &
-    tp_hourofday,                        & ! diurnal scaling factor
-    tp_hour                                ! hourly scaling factor
+  REAL(KIND=wp), DIMENSION(:,:),   ALLOCATABLE :: &
+    tp_hourofday,          & ! diurnal scaling factor
+    tp_hour                  ! hourly scaling factor
 
-  INTEGER, DIMENSION(:),  ALLOCATABLE :: &
-    tp_countryid                           ! EMEP country code
+  INTEGER(KIND=iinteger), DIMENSION(:),  ALLOCATABLE :: &
+    tp_countryid             ! EMEP country code
 
   !
   ! Gridded emissions fields
   !
   CHARACTER(LEN=20), DIMENSION(:), ALLOCATABLE :: &
-    gridded_emissions_idx                  ! Name of the annual mean emissions
-                                           ! fields
+    gridded_emissions_idx    ! Name of the annual mean emissions
+                             ! fields
 
   REAL, DIMENSION(:,:,:), ALLOCATABLE :: &
     gridded_emissions                      ! Annual mean 2D emissions fields
@@ -140,7 +141,6 @@ CONTAINS
 
   SUBROUTINE read_temporal_profile_from_file()
     IMPLICIT NONE
-
     INTEGER :: ncid, varid, err_status
 
     ! Open the NetCDF file
@@ -186,10 +186,8 @@ CONTAINS
   ! from the NetCDF file.
   SUBROUTINE init_and_read_gridded_emissions()
     IMPLICIT NONE
-
     INTEGER :: ncid, nc_nvar, i, gridded_idx
-
-    INTEGER, DIMENSION(:), ALLOCATABLE :: varids
+    INTEGER(KIND=iinteger), DIMENSION(:), ALLOCATABLE :: varids
     CHARACTER(LEN=20) :: var_name
 
     gridded_idx = 1
@@ -223,9 +221,11 @@ CONTAINS
 
   ! Find the index of a gridded emission field based on its name
   FUNCTION get_gridded_emissions_idx(name)
+    IMPLICIT NONE
     CHARACTER(LEN=*), INTENT(IN) :: name
-    INTEGER :: get_gridded_emissions_idx
-    INTEGER :: i
+    INTEGER(KIND=iinteger) :: get_gridded_emissions_idx
+    INTEGER(KIND=iinteger) :: i
+
     get_gridded_emissions_idx = 0
     DO i = 1, SIZE(gridded_emissions_idx)
       IF(name == gridded_emissions_idx(i)) THEN
@@ -265,7 +265,7 @@ CONTAINS
 
   SUBROUTINE ncdf_call_and_check_status(status)
     IMPLICIT NONE
-    INTEGER, INTENT(IN) :: status
+    INTEGER(KIND=iinteger), INTENT(IN) :: status
 
     IF (status /= nf90_noerr) THEN
       print *, trim(nf90_strerror(status))

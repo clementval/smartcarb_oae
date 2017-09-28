@@ -10,11 +10,11 @@ MODULE m_smartcarb_oae
   IMPLICIT NONE
 
   ! Constant variable
-  INTEGER(KIND=iinteger), PARAMETER :: vp_nlevel = 16
-  INTEGER(KIND=iinteger), PARAMETER :: tp_param_hourofday = 24
-  INTEGER(KIND=iinteger), PARAMETER :: tp_param_dayofweek = 7
-  INTEGER(KIND=iinteger), PARAMETER :: tp_param_monthofyear = 12
-  INTEGER(KIND=iinteger), PARAMETER :: tp_param_hour = 8784
+  INTEGER, PARAMETER :: vp_nlevel = 16
+  INTEGER, PARAMETER :: tp_param_hourofday = 24
+  INTEGER, PARAMETER :: tp_param_dayofweek = 7
+  INTEGER, PARAMETER :: tp_param_monthofyear = 12
+  INTEGER, PARAMETER :: tp_param_hour = 8784
 
   ! TODO filename specs
   CHARACTER(len=*), PARAMETER :: vertical_profile_nc = "../data/vertical_profile.nc"
@@ -33,8 +33,8 @@ MODULE m_smartcarb_oae
   !
   ! Tempororal profile arrays
   !
-  INTEGER(KIND=iinteger) :: tp_ntracercat ! Number of tracer category in temporal profile
-  INTEGER(KIND=iinteger) :: tp_ncountry   ! Number of country ID in temporal profile
+  INTEGER :: tp_ntracercat ! Number of tracer category in temporal profile
+  INTEGER :: tp_ncountry   ! Number of country ID in temporal profile
 
   CHARACTER(LEN=20), DIMENSION(:), ALLOCATABLE :: &
     tp_tracercat             ! Tracer name
@@ -47,7 +47,7 @@ MODULE m_smartcarb_oae
     tp_hourofday,          & ! diurnal scaling factor
     tp_hour                  ! hourly scaling factor
 
-  INTEGER(KIND=iinteger), DIMENSION(:),  ALLOCATABLE :: &
+  INTEGER, DIMENSION(:),  ALLOCATABLE :: &
     tp_countryid             ! EMEP country code
 
   !
@@ -187,7 +187,7 @@ CONTAINS
   SUBROUTINE init_and_read_gridded_emissions()
     IMPLICIT NONE
     INTEGER :: ncid, nc_nvar, i, gridded_idx
-    INTEGER(KIND=iinteger), DIMENSION(:), ALLOCATABLE :: varids
+    INTEGER, DIMENSION(:), ALLOCATABLE :: varids
     CHARACTER(LEN=20) :: var_name
 
     gridded_idx = 1
@@ -223,8 +223,8 @@ CONTAINS
   FUNCTION get_gridded_emissions_idx(name)
     IMPLICIT NONE
     CHARACTER(LEN=*), INTENT(IN) :: name
-    INTEGER(KIND=iinteger) :: get_gridded_emissions_idx
-    INTEGER(KIND=iinteger) :: i
+    INTEGER :: get_gridded_emissions_idx
+    INTEGER :: i
 
     get_gridded_emissions_idx = 0
     DO i = 1, SIZE(gridded_emissions_idx)
@@ -265,7 +265,7 @@ CONTAINS
 
   SUBROUTINE ncdf_call_and_check_status(status)
     IMPLICIT NONE
-    INTEGER(KIND=iinteger), INTENT(IN) :: status
+    INTEGER, INTENT(IN) :: status
 
     IF (status /= nf90_noerr) THEN
       print *, trim(nf90_strerror(status))

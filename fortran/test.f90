@@ -3,8 +3,15 @@ program test
   use m_smartcarb_oae
   implicit none
 
+  integer :: ierror = 0
+  character(len=200) :: errmsg
 
-  CALL oae_init()
+  CALL oae_init(ierror, errmsg)
+
+  if (ierror /= 0) then
+    print*,errmsg
+    stop
+  end if
 
   print*,'SMARTCARB OAE TESTS'
 

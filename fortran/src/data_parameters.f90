@@ -3,5 +3,5 @@ module data_parameters
   public
   integer, parameter :: wp = selected_real_kind(13)
   integer, parameter :: i8 = selected_int_kind(14)
-  integer, parameter :: iinteger = KIND(1)
+  integer, parameter :: iintegers = KIND(1)
 end module data_parameters

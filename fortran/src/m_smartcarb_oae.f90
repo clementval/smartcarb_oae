@@ -10,11 +10,11 @@ MODULE m_smartcarb_oae
   IMPLICIT NONE
 
   ! Constant variable
-  INTEGER, PARAMETER :: vp_nlevel = 16
-  INTEGER, PARAMETER :: tp_param_hourofday = 24
-  INTEGER, PARAMETER :: tp_param_dayofweek = 7
-  INTEGER, PARAMETER :: tp_param_monthofyear = 12
-  INTEGER, PARAMETER :: tp_param_hour = 8784
+  INTEGER(KIND=iinteger), PARAMETER :: vp_nlevel = 16
+  INTEGER(KIND=iinteger), PARAMETER :: tp_param_hourofday = 24
+  INTEGER(KIND=iinteger), PARAMETER :: tp_param_dayofweek = 7
+  INTEGER(KIND=iinteger), PARAMETER :: tp_param_monthofyear = 12
+  INTEGER(KIND=iinteger), PARAMETER :: tp_param_hour = 8784
 
   ! TODO filename specs
   CHARACTER(len=*), PARAMETER :: vertical_profile_nc = "../data/vertical_profile.nc"
@@ -33,8 +33,8 @@ MODULE m_smartcarb_oae
   !
   ! Tempororal profile arrays
   !
-  INTEGER :: tp_ntracercat ! Number of tracer category in temporal profile
-  INTEGER :: tp_ncountry   ! Number of country ID in temporal profile
+  INTEGER(KIND=iinteger) :: tp_ntracercat ! Number of tracer category in temporal profile
+  INTEGER(KIND=iinteger) :: tp_ncountry   ! Number of country ID in temporal profile
 
   CHARACTER(LEN=20), DIMENSION(:), ALLOCATABLE :: &
     tp_tracercat             ! Tracer name
@@ -47,7 +47,7 @@ MODULE m_smartcarb_oae
     tp_hourofday,          & ! diurnal scaling factor
     tp_hour                  ! hourly scaling factor
 
-  INTEGER, DIMENSION(:),  ALLOCATABLE :: &
+  INTEGER(KIND=iinteger), DIMENSION(:),  ALLOCATABLE :: &
     tp_countryid             ! EMEP country code
 
   !
@@ -88,7 +88,7 @@ CONTAINS
   SUBROUTINE read_vertical_profile_from_file(ierror, yerrmsg)
     IMPLICIT NONE
     INTEGER :: ncid, varid, err_status
-    INTEGER, INTENT(OUT) :: ierror
+    INTEGER(KIND=iinteger), INTENT(OUT) :: ierror
     CHARACTER (LEN= *), INTENT(OUT) :: yerrmsg
 
     err_status = nf90_open(vertical_profile_nc, NF90_NOWRITE, ncid)
@@ -112,7 +112,7 @@ CONTAINS
   SUBROUTINE init_temporal_profile_fields(ierror, yerrmsg)
     IMPLICIT NONE
     INTEGER :: ncid, dimid, err_status
-    INTEGER, INTENT(OUT) :: ierror
+    INTEGER(KIND=iinteger), INTENT(OUT) :: ierror
     CHARACTER (LEN= *), INTENT(OUT) :: yerrmsg
 
     ! Open the NetCDF file
@@ -156,7 +156,7 @@ CONTAINS
   SUBROUTINE read_temporal_profile_from_file(ierror, yerrmsg)
     IMPLICIT NONE
     INTEGER :: ncid, varid, err_status
-    INTEGER, INTENT(OUT) :: ierror
+    INTEGER(KIND=iinteger), INTENT(OUT) :: ierror
     CHARACTER (LEN= *), INTENT(OUT) :: yerrmsg
 
     ! Open the NetCDF file
@@ -207,10 +207,11 @@ CONTAINS
   ! from the NetCDF file.
   SUBROUTINE init_and_read_gridded_emissions(ierror, yerrmsg)
     IMPLICIT NONE
-    INTEGER :: ncid, nc_nvar, i, gridded_idx, err_status
-    INTEGER, DIMENSION(:), ALLOCATABLE :: varids
+    INTEGER :: ncid, nc_nvar, err_status
+    INTEGER(KIND=iinteger) :: i, gridded_idx
+    INTEGER(KIND=iinteger), DIMENSION(:), ALLOCATABLE :: varids
     CHARACTER(LEN=20) :: var_name
-    INTEGER, INTENT(OUT) :: ierror
+    INTEGER(KIND=iinteger), INTENT(OUT) :: ierror
     CHARACTER (LEN= *), INTENT(OUT) :: yerrmsg
 
     gridded_idx = 1
@@ -251,8 +252,8 @@ CONTAINS
   FUNCTION get_gridded_emissions_idx(name)
     IMPLICIT NONE
     CHARACTER(LEN=*), INTENT(IN) :: name
-    INTEGER :: get_gridded_emissions_idx
-    INTEGER :: i
+    INTEGER(KIND=iinteger) :: get_gridded_emissions_idx
+    INTEGER(KIND=iinteger) :: i
 
     get_gridded_emissions_idx = 0
     DO i = 1, SIZE(gridded_emissions_idx)
@@ -273,7 +274,7 @@ CONTAINS
 
   SUBROUTINE oae_init(ierror, yerrmsg)
     IMPLICIT NONE
-    INTEGER, INTENT(OUT) :: ierror
+    INTEGER(KIND=iinteger), INTENT(OUT) :: ierror
     CHARACTER (LEN= *), INTENT(OUT) :: yerrmsg
 
     CALL init_vertical_profile_fields()

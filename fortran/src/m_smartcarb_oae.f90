@@ -4,7 +4,7 @@
 !
 
 MODULE m_smartcarb_oae
-  USE mo_kind
+  USE data_parameters, ONLY: wp, iinteger
   USE netcdf
 
   IMPLICIT NONE
